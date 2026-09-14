@@ -12,9 +12,12 @@ import { Wllama } from '@wllama/wllama';
 import { LLM_MODEL } from './config.js';
 
 const WASM_PATHS = {
-  // Served as a static asset by Vite; see scripts/copy-wasm.mjs (runs on
-  // `npm install` via the postinstall hook) for how it gets into public/wasm.
-  default: '/wasm/wllama.wasm',
+  // Relative (not "/wasm/...") so it resolves correctly under a subpath
+  // deployment like GitHub Pages project sites (https://user.github.io/repo/),
+  // not just at domain root. Served as a static asset by Vite; see
+  // scripts/copy-wasm.mjs (runs on `npm install` via postinstall) for how it
+  // gets into public/wasm.
+  default: 'wasm/wllama.wasm',
 };
 
 let wllama = null;

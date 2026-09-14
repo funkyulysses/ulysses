@@ -653,6 +653,14 @@ function updateLoadingProgress({ llmLoaded, llmTotal, embedPct, llmDone, embedDo
 }
 
 async function runOnboarding() {
+  // Ask for persistent storage before the big download starts, so the
+  // browser is less likely to evict the cached model under storage
+  // pressure (best-effort — not supported/granted everywhere, notably not
+  // guaranteed on iOS Safari, but harmless to request and free when it works).
+  if (navigator.storage?.persist) {
+    navigator.storage.persist().catch(() => {});
+  }
+
   welcomeScreen.classList.add('hidden');
   loadingScreen.classList.remove('hidden');
   loadingRetryBtn.classList.add('hidden');
