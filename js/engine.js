@@ -70,8 +70,27 @@ async function handleNote(text, chatId) {
   return { type: 'note', note, message };
 }
 
+// Small instruct models (0.5B very much included) are unreliable at
+// counting, even when every note is right there in the context — this is a
+// model-capability ceiling, not a retrieval problem, so the fix is to not
+// ask the model at all for this narrow, extremely common question shape.
+// Deterministic, instant, always correct.
+const NOTE_COUNT_PATTERN = /how many notes|number of notes|count (of |my )?notes/i;
+
+function isNoteCountQuestion(text) {
+  return NOTE_COUNT_PATTERN.test(text);
+}
+
 async function handleQuestion(text, chatId) {
   const allNotes = await storage.listNotes();
+
+  if (isNoteCountQuestion(text)) {
+    const n = allNotes.length;
+    const answer = n === 0 ? "You don't have any notes yet." : `You have ${n} note${n === 1 ? '' : 's'}.`;
+    await storage.addMessage({ chat_id: chatId, role: 'question', content: text });
+    const message = await storage.addMessage({ chat_id: chatId, role: 'answer', content: answer });
+    return { type: 'question', message, sources: [] };
+  }
 
   // Small collections: skip similarity filtering entirely and use every
   // note as context. Pure embedding similarity cannot answer meta-questions
