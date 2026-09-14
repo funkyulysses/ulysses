@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Ulysses</title>
+  <meta name="description" content="Ulysses — your private, fully offline second brain. Capture thoughts, ask questions, see how they connect, all on-device." />
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#f4f5f7" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#0c0d10" media="(prefers-color-scheme: dark)" />
+
+  <!-- iOS "Add to Home Screen" -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Ulysses" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <link rel="icon" href="icons/icon-192.png" type="image/png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <div class="canvas"><div class="blob blob-a"></div><div class="blob blob-b"></div><div class="blob blob-c"></div></div>
+
+  <div class="shell" id="shell">
+    <aside class="sidebar glass" id="sidebar">
+      <div class="sidebar-top">
+        <div class="brand"><span class="brand-mark">Uy.</span><span class="brand-name">Ulysses</span></div>
+        <div class="sidebar-actions">
+          <button class="icon-btn" id="settings-btn" aria-label="Settings">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          </button>
+          <button class="icon-btn" id="collapse-btn" aria-label="Hide sidebar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 5l-7 7 7 7"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <button class="new-chat-btn" id="new-chat-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        New chat
+      </button>
+
+      <div class="sidebar-tabs">
+        <button class="sidebar-tab active" id="tab-chats">Chat</button>
+        <button class="sidebar-tab" id="tab-notes">Notes <span class="count-badge" id="notes-count-badge">0</span></button>
+        <button class="sidebar-tab" id="tab-map">Map</button>
+      </div>
+
+      <nav class="chat-history" id="chat-history">
+        <!-- populated by js/ui/chat.js -->
+      </nav>
+
+      <div class="mobile-only-title for-notes">Notes</div>
+      <div class="notes-toolbar">
+        <div class="notes-search glass">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+          <input type="text" id="notes-search-input" placeholder="Search notes...">
+        </div>
+        <div class="filter-chips" id="filter-chips">
+          <button class="chip active" data-filter="all">All</button>
+        </div>
+      </div>
+      <nav class="notes-panel" id="notes-panel">
+        <!-- populated by js/ui/notes.js -->
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="model-chip"><span class="model-dot" id="model-dot"></span><span id="model-chip-text">Loading model…</span></div>
+      </div>
+    </aside>
+
+    <button class="show-sidebar-btn glass" id="show-sidebar-btn" hidden aria-label="Show sidebar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+
+    <main class="chat-main">
+      <div class="chat-topbar">
+        <span class="status-pill glass"><span class="model-dot" style="width:5px;height:5px;"></span>fully offline · no data leaves your device</span>
+      </div>
+
+      <div class="chat-scroll" id="chat-scroll">
+        <div class="chat-col" id="chat-col">
+          <div class="empty-chat-hint" id="empty-chat-hint">
+            Speak or type a thought to file it away, or ask a question to get an answer grounded only in your notes.
+          </div>
+        </div>
+      </div>
+
+      <div class="composer-wrap">
+        <div class="composer glass">
+          <button class="mic-btn" id="mic-btn" aria-label="Record voice note">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4"/></svg>
+          </button>
+          <textarea id="composer-input" rows="1" placeholder="Speak or type a thought, or ask your brain..." disabled></textarea>
+          <button class="send-btn" id="send-btn" aria-label="Send" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </button>
+        </div>
+        <p class="composer-hint">Statements become tagged notes · questions are answered <b>only</b> from your notes</p>
+      </div>
+    </main>
+
+    <!-- Settings modal -->
+    <div class="modal-backdrop" id="settings-backdrop">
+      <div class="settings-modal glass">
+        <div class="settings-header">
+          <h2>Settings</h2>
+          <button class="icon-btn" id="settings-close" aria-label="Close settings">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-label">Model</div>
+          <div class="settings-row"><span class="settings-row-label">Chat &amp; tagging</span><span class="settings-row-value" id="settings-llm-status">Loading…</span></div>
+          <div class="settings-row"><span class="settings-row-label">Mind map embeddings</span><span class="settings-row-value" id="settings-embed-status">Loading…</span></div>
+          <div class="settings-row"><span class="settings-row-label">Engine</span><span class="settings-row-value">wllama (WASM)</span></div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-label">Storage</div>
+          <div class="settings-row"><span class="settings-row-label">Used on this device</span><span class="settings-row-value" id="settings-storage-used">—</span></div>
+          <div class="settings-row"><span class="settings-row-label">Available (quota)</span><span class="settings-row-value" id="settings-storage-quota">—</span></div>
+          <div class="settings-row"><span class="settings-row-label">Notes saved</span><span class="settings-row-value" id="settings-notes-count">—</span></div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-label">Appearance</div>
+          <div class="segmented" id="theme-segmented">
+            <button data-theme-choice="light">Light</button>
+            <button data-theme-choice="system" class="active">System</button>
+            <button data-theme-choice="dark">Dark</button>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-label">Data</div>
+          <div class="danger-zone">
+            <p>Reset memory clears chat history only — your notes are not affected.</p>
+            <button class="danger-btn" id="reset-memory-btn">Reset memory</button>
+            <p>Delete all notes permanently erases your archive. This cannot be undone.</p>
+            <button class="danger-btn" id="delete-notes-btn">Delete all notes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mind map overlay -->
+    <div class="mindmap-overlay glass hidden" id="mindmap-overlay">
+      <div class="mindmap-header">
+        <h2>Mind map</h2>
+        <div class="mindmap-legend" id="mindmap-legend"></div>
+        <button class="icon-btn" id="mindmap-close" aria-label="Close mind map">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="mindmap-canvas-wrap">
+        <canvas id="mindmap-canvas"></canvas>
+        <div class="mindmap-empty hidden" id="mindmap-empty">Save a few notes to see how they connect.</div>
+      </div>
+      <div class="mindmap-preview glass hidden" id="mindmap-preview"></div>
+    </div>
+
+    <!-- Welcome screen -->
+    <div class="overlay-screen glass" id="welcome-screen" style="border-radius:var(--r-xl);">
+      <div class="welcome-mark">Uy.</div>
+      <h1 class="welcome-title">Meet Ulysses</h1>
+      <p class="welcome-sub">Your private second brain. Capture thoughts, ask questions, see how they connect — all on this device, all offline.</p>
+      <div class="welcome-features">
+        <div class="welcome-feature glass">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z"/><path d="M12 6v6l4 2"/></svg>
+          <span>Runs entirely on your device — nothing sent anywhere</span>
+        </div>
+        <div class="welcome-feature glass">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h6"/></svg>
+          <span>Notes tag and organize themselves automatically</span>
+        </div>
+        <div class="welcome-feature glass">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="12" cy="18" r="2.5"/><path d="M8.2 7.4L10.5 15.5M15.8 7.4L13.5 15.5M8.5 6h7"/></svg>
+          <span>See how your notes connect in a living mind map</span>
+        </div>
+      </div>
+      <button class="welcome-cta" id="welcome-cta">Get started</button>
+      <p class="welcome-note">First launch downloads a ~1.1GB on-device model. After that, it never needs the internet again.</p>
+    </div>
+
+    <!-- Loading / install screen -->
+    <div class="overlay-screen glass hidden" id="loading-screen" style="border-radius:var(--r-xl);">
+      <div class="welcome-mark">Uy.</div>
+      <h2 class="loading-title" id="loading-title">Setting up Ulysses</h2>
+      <p class="loading-sub" id="loading-sub">Downloading the on-device model once — this stays cached on your device from here on.</p>
+      <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+      <div class="progress-label"><b id="progress-pct">0%</b><span id="progress-detail">Starting…</span></div>
+      <div class="loading-steps" id="loading-steps">
+        <div class="loading-step active" data-step="0"><span class="step-dot"></span>Downloading Qwen2.5-1.5B</div>
+        <div class="loading-step" data-step="1"><span class="step-dot"></span>Downloading MiniLM embeddings</div>
+        <div class="loading-step" data-step="2"><span class="step-dot"></span>Preparing your local database</div>
+      </div>
+      <button class="welcome-cta danger-retry hidden" id="loading-retry-btn">Retry</button>
+    </div>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

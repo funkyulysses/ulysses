@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Ulysses Engine Test Harness</title>
+    <style>
+      body { font-family: system-ui, sans-serif; margin: 1.5rem; }
+      pre { background: #111; color: #0f0; padding: 1rem; white-space: pre-wrap; }
+      button { margin: 0.25rem; padding: 0.5rem 1rem; }
+    </style>
+  </head>
+  <body>
+    <h1>Ulysses Engine Test Harness</h1>
+    <p>Manual/automated exercise page for js/engine.js. Not part of the product UI.</p>
+    <div>
+      <button onclick="window.runStorageTests().then(r => log(r))">Run storage tests</button>
+      <button onclick="window.runClassifyTests().then(r => log(r))">Run classify tests</button>
+      <button onclick="window.runEmbeddingTests().then(r => log(r))">Run embedding tests</button>
+      <button onclick="window.runLLMTests().then(r => log(r))">Run LLM tests (slow, downloads model)</button>
+      <button onclick="window.runPipelineTests().then(r => log(r))">Run full pipeline test</button>
+      <button onclick="window.runAllTests().then(r => log(r))">Run ALL tests</button>
+    </div>
+    <pre id="output">(results will appear here)</pre>
+    <script type="module" src="/js/test-harness.js"></script>
+    <script>
+      function log(r) {
+        document.getElementById('output').textContent = JSON.stringify(r, null, 2);
+      }
+    </script>
+  </body>
+</html>
