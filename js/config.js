@@ -46,5 +46,15 @@ export const RETRIEVAL_TOP_K = 5;
  *  QA prompt at all (keeps totally unrelated notes out of the context window). */
 export const RETRIEVAL_MIN_SIMILARITY = 0.2;
 
+/** Below this many total notes, skip similarity filtering for Q&A entirely
+ *  and just pass every note as context. Pure similarity search cannot answer
+ *  meta-questions about the collection itself ("how many notes do I have?",
+ *  "what does my only note say?") — there's no note *content* to match a
+ *  question like that against, so it always retrieves nothing and the
+ *  answer short-circuits to "I don't know" even though the answer is
+ *  trivially available. Cheap to include everything below this size; a
+ *  handful of short notes fits comfortably in the 2048-token context. */
+export const SMALL_COLLECTION_MAX = 12;
+
 export const IDB_DB_NAME = 'ulysses';
 export const IDB_DB_VERSION = 1;

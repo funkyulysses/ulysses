@@ -11,7 +11,7 @@ import { classifyInput } from './classify.js';
 import { loadLLM, tagNote, answerQuestion } from './llm.js';
 import { loadEmbeddingModel, embedText, findSimilarNotes, findLinkedNotes } from './embeddings.js';
 import * as storage from './storage.js';
-import { RETRIEVAL_TOP_K, RETRIEVAL_MIN_SIMILARITY, MINDMAP_SIMILARITY_THRESHOLD } from './config.js';
+import { RETRIEVAL_TOP_K, RETRIEVAL_MIN_SIMILARITY, MINDMAP_SIMILARITY_THRESHOLD, SMALL_COLLECTION_MAX } from './config.js';
 
 /**
  * Load both models. Call once at app boot; t009 drives its install/progress
@@ -71,10 +71,27 @@ async function handleNote(text, chatId) {
 }
 
 async function handleQuestion(text, chatId) {
-  const queryEmbedding = await embedText(text);
   const allNotes = await storage.listNotes();
-  const top = findSimilarNotes(queryEmbedding, allNotes, RETRIEVAL_TOP_K, RETRIEVAL_MIN_SIMILARITY);
-  const retrievedNotes = top.map((t) => t.note);
+
+  // Small collections: skip similarity filtering entirely and use every
+  // note as context. Pure embedding similarity cannot answer meta-questions
+  // about the collection itself ("how many notes do I have?", "what does my
+  // only note say?") — there's no note *content* that "matches" a question
+  // like that, so similarity search always comes back empty and the answer
+  // short-circuits to "I don't know" even when the answer is trivial. Cheap
+  // to include everything below SMALL_COLLECTION_MAX; only fall back to
+  // similarity-ranked top-k once there are enough notes that dumping all of
+  // them would blow the context budget or dilute retrieval quality.
+  let retrievedNotes;
+  let top;
+  if (allNotes.length <= SMALL_COLLECTION_MAX) {
+    retrievedNotes = allNotes;
+    top = allNotes.map((note) => ({ note, score: null }));
+  } else {
+    const queryEmbedding = await embedText(text);
+    top = findSimilarNotes(queryEmbedding, allNotes, RETRIEVAL_TOP_K, RETRIEVAL_MIN_SIMILARITY);
+    retrievedNotes = top.map((t) => t.note);
+  }
 
   await storage.addMessage({ chat_id: chatId, role: 'question', content: text });
 
