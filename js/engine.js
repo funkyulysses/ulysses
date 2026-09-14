@@ -20,10 +20,15 @@ import { RETRIEVAL_TOP_K, RETRIEVAL_MIN_SIMILARITY, MINDMAP_SIMILARITY_THRESHOLD
  *           onEmbeddingProgress?: (info:{status:string,progress?:number})=>void }} [callbacks]
  */
 export async function initEngine({ onLLMProgress, onEmbeddingProgress } = {}) {
-  await Promise.all([
-    loadLLM(onLLMProgress),
-    loadEmbeddingModel(onEmbeddingProgress),
-  ]);
+  // Sequential, not Promise.all. Loading both models concurrently means both
+  // wllama's WASM instance AND Transformers.js's ONNX WASM runtime are
+  // compiling/allocating at the same time — on a memory-constrained mobile
+  // Safari tab, that peak concurrent usage is a real risk even if the
+  // steady-state total afterward would have been the same. Loading one
+  // fully, then the other, trades a bit of wall-clock time for a materially
+  // lower peak — worth it here.
+  await loadLLM(onLLMProgress);
+  await loadEmbeddingModel(onEmbeddingProgress);
   return true;
 }
 

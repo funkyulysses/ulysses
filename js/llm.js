@@ -57,6 +57,18 @@ export function loadLLM(onProgress) {
         // WebGPU guarantee in-browser, so we deliberately don't rely on it
         // for this task — see brief. WebGPU can be a later fast-follow.
         n_gpu_layers: 0,
+        // Quantize the KV cache (default is f16) — roughly halves its memory
+        // footprint for a small, measured quality cost. Combined with the
+        // reduced context size in config.js, this materially cuts peak
+        // memory during model load, which matters on an iOS Safari tab's
+        // constrained per-page memory ceiling.
+        cache_type_k: 'q8_0',
+        cache_type_v: 'q8_0',
+        // Smaller batch buffer = less peak memory during prompt processing,
+        // at a modest throughput cost. Default (2048) is tuned for desktop;
+        // this workload's prompts are short (a handful of retrieved notes),
+        // so the tradeoff is a good one here.
+        n_batch: 512,
       }
     )
     .then(() => wllama);

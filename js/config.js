@@ -12,8 +12,12 @@ export const LLM_MODEL = {
   url: 'https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/main/qwen2.5-1.5b-instruct-q4_k_m.gguf',
   // Context window to allocate. Qwen2.5-1.5B supports up to 32768, but on an
   // A16 iPhone in pure WASM we keep this modest to bound memory + first-token
-  // latency. 4096 comfortably fits a system prompt + several retrieved notes.
-  contextSize: 4096,
+  // latency. 2048 still comfortably fits a system prompt + RETRIEVAL_TOP_K
+  // notes + a question, and directly halves KV-cache memory vs. 4096 (KV
+  // cache size scales linearly with context length) — this matters a lot on
+  // a memory-constrained mobile Safari tab. See js/llm.js for KV-cache
+  // quantization, the other big lever on the same problem.
+  contextSize: 2048,
 };
 
 /** Embedding model: all-MiniLM-L6-v2, ONNX, quantized (Transformers.js default). */
