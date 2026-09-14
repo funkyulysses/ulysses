@@ -5,7 +5,7 @@
 // without waiting on compose()'s round trip).
 
 import {
-  initEngine, compose, buildMindMapEdges,
+  initEngine, compose, buildMindMapEdges, clearCachedModels,
   createNote, listNotes, getNote, deleteNote, deleteAllNotes,
   createChat, listChats, getChat, deleteChat, clearAllChats,
   addMessage, getChatMessages, getStorageEstimate,
@@ -64,6 +64,7 @@ const settingsNotesCount = $('settings-notes-count');
 const themeButtons = document.querySelectorAll('#theme-segmented button');
 const resetMemoryBtn = $('reset-memory-btn');
 const deleteNotesBtn = $('delete-notes-btn');
+const clearModelCacheBtn = $('clear-model-cache-btn');
 
 const welcomeScreen = $('welcome-screen');
 const loadingScreen = $('loading-screen');
@@ -520,6 +521,29 @@ deleteNotesBtn.addEventListener('click', async () => {
     settingsBackdrop.classList.remove('open');
   } finally {
     deleteNotesBtn.disabled = false;
+  }
+});
+
+clearModelCacheBtn.addEventListener('click', async () => {
+  if (!confirm('Clear cached model data? The app will reload and re-download the model (a few hundred MB) fresh. Your notes and chats are not affected.')) return;
+  clearModelCacheBtn.disabled = true;
+  clearModelCacheBtn.textContent = 'Clearing…';
+  try {
+    await clearCachedModels();
+  } catch (err) {
+    console.error('clearCachedModels failed', err);
+    // Continue anyway — a reload with a half-cleared cache is still better
+    // than leaving corrupted leftovers in place, and the fresh download
+    // path will overwrite whatever remains.
+  } finally {
+    // Clear the onboarded flag too: without this, boot() takes the
+    // "returning visit" path (loadEngineSilently — no progress bar, just a
+    // disabled composer with generic "Loading" text) while a fresh
+    // multi-hundred-MB download runs invisibly in the background. Clearing
+    // it makes the reload show the real Welcome -> progress-bar flow again,
+    // so re-downloading is actually visible instead of looking stalled.
+    localStorage.removeItem(ONBOARD_KEY);
+    location.reload();
   }
 });
 

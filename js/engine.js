@@ -8,8 +8,8 @@
 //                     -> answer(text, notes) -> addMessage (no note written)
 
 import { classifyInput } from './classify.js';
-import { loadLLM, tagNote, answerQuestion } from './llm.js';
-import { loadEmbeddingModel, embedText, findSimilarNotes, findLinkedNotes } from './embeddings.js';
+import { loadLLM, tagNote, answerQuestion, clearCachedModel } from './llm.js';
+import { loadEmbeddingModel, embedText, findSimilarNotes, findLinkedNotes, clearCachedEmbeddingModel } from './embeddings.js';
 import * as storage from './storage.js';
 import { RETRIEVAL_TOP_K, RETRIEVAL_MIN_SIMILARITY, MINDMAP_SIMILARITY_THRESHOLD, SMALL_COLLECTION_MAX } from './config.js';
 
@@ -142,6 +142,18 @@ export async function buildMindMapEdges(threshold = MINDMAP_SIMILARITY_THRESHOLD
     }
   }
   return edges;
+}
+
+/**
+ * Wipes every cached model file (both the LLM and the embedding model).
+ * Distinct from the notes/chats storage functions below — this clears the
+ * one-time model download, not user data, and only matters when storage
+ * has grown unexpectedly (usually from a download interrupted by a crash
+ * leaving a corrupted partial file). Caller should reload the page after
+ * this resolves so a fresh, clean download starts from zero.
+ */
+export async function clearCachedModels() {
+  await Promise.all([clearCachedModel(), clearCachedEmbeddingModel()]);
 }
 
 // Re-export storage functions so t009 has one module to import for the

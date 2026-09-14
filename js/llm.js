@@ -8,7 +8,7 @@
 // back automatically where OPFS is unavailable). A second `loadModel()` call
 // in a later page load reads from that cache and does not re-download.
 
-import { Wllama } from '@wllama/wllama';
+import { Wllama, CacheManager } from '@wllama/wllama';
 import { LLM_MODEL } from './config.js';
 
 const WASM_PATHS = {
@@ -79,6 +79,21 @@ export function loadLLM(onProgress) {
 /** @returns {boolean} whether the model has finished loading in this session */
 export function isLLMLoaded() {
   return wllama !== null && loadPromise !== null;
+}
+
+/**
+ * Wipes every cached model file wllama has ever written (OPFS-backed by
+ * default). Important beyond just "free up space": a download interrupted
+ * mid-way (the tab crashing, which happened repeatedly during real-device
+ * testing) leaves a corrupted partial file behind that ordinary use never
+ * cleans up — this is the direct fix for storage that keeps growing back
+ * even after clearing Safari's Website Data, which has a known history of
+ * not always fully clearing OPFS. Call this, then reload the page so a
+ * fresh, clean download starts from zero.
+ */
+export async function clearCachedModel() {
+  const cm = new CacheManager();
+  await cm.clear();
 }
 
 function extractJSONObject(text) {

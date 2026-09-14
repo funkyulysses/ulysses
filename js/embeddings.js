@@ -37,6 +37,25 @@ export async function loadEmbeddingModel(onProgress) {
 }
 
 /**
+ * Wipes every Cache Storage entry Transformers.js has written for the
+ * embedding model. Same purpose as llm.js's clearCachedModel() — an
+ * interrupted download can leave a partial/corrupted entry that ordinary
+ * use never cleans up, and Safari's Website Data deletion doesn't always
+ * fully clear every storage backend. Deletes any cache whose name looks
+ * Transformers.js-owned rather than guessing one exact name, since the
+ * library's internal cache naming isn't part of its public API contract.
+ */
+export async function clearCachedEmbeddingModel() {
+  if (typeof caches === 'undefined') return;
+  const names = await caches.keys();
+  await Promise.all(
+    names
+      .filter((n) => /transformers|onnx|huggingface/i.test(n))
+      .map((n) => caches.delete(n))
+  );
+}
+
+/**
  * @param {string} text
  * @returns {Promise<number[]>} a 384-dim, L2-normalized embedding vector
  */
