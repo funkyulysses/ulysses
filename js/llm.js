@@ -1,5 +1,5 @@
 // js/llm.js
-// wllama (WASM llama.cpp) wrapper around Qwen2.5-1.5B-Instruct (GGUF, Q4_K_M).
+// wllama (WASM llama.cpp) wrapper around Qwen2.5-0.5B-Instruct (GGUF, Q4_K_M).
 // Two capabilities: tag a note (category + tags as JSON) and answer a
 // question grounded in retrieved notes.
 //
@@ -36,7 +36,7 @@ function makeWllama() {
 }
 
 /**
- * Loads Qwen2.5-1.5B-Instruct (idempotent — safe to call multiple times;
+ * Loads Qwen2.5-0.5B-Instruct (idempotent — safe to call multiple times;
  * subsequent calls reuse the in-flight or already-completed load).
  *
  * @param {(info: {loaded: number, total: number}) => void} [onProgress]
@@ -146,7 +146,7 @@ export const NO_ANSWER_TEXT = "I don't know based on your notes.";
 export async function answerQuestion(question, retrievedNotes) {
   // Short-circuit rather than asking the model at all: with zero retrieved
   // notes there is nothing to ground an answer in, and small instruct models
-  // (Qwen2.5-1.5B included) will readily fall back on their own parametric
+  // (Qwen2.5-0.5B included) will readily fall back on their own parametric
   // knowledge despite being told not to — measured directly in testing (see
   // report). Not calling the model here is strictly more correct AND faster.
   if (!retrievedNotes || retrievedNotes.length === 0) {

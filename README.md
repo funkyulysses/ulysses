@@ -12,8 +12,8 @@ function surface it calls into.
 ## Stack
 
 - **[wllama](https://github.com/ngxson/wllama)** (`@wllama/wllama`) — WASM
-  port of llama.cpp, running **Qwen2.5-1.5B-Instruct** (GGUF, Q4_K_M, from
-  the official `Qwen/Qwen2.5-1.5B-Instruct-GGUF` repo on Hugging Face) for
+  port of llama.cpp, running **Qwen2.5-0.5B-Instruct** (GGUF, Q4_K_M, from
+  the official `Qwen/Qwen2.5-0.5B-Instruct-GGUF` repo on Hugging Face) for
   note tagging and grounded Q&A. Pure CPU/WASM path (`n_gpu_layers: 0`) —
   WebGPU is deliberately not relied on, per the iPhone 15 (A16, no WebGPU
   guarantee) target device.
@@ -99,7 +99,7 @@ See the task report for full detail. Summary:
 - **Live browser tests** (`test.html`, driven headlessly via Playwright +
   Chromium during development, 32/32 passing): IndexedDB CRUD, real
   MiniLM embedding inference (verified related notes score higher than
-  unrelated ones), real Qwen2.5-1.5B-Instruct download + inference (tagging
+  unrelated ones), real Qwen2.5-0.5B-Instruct download + inference (tagging
   and grounded Q&A with genuine model output, not mocked), full
   `compose()` pipeline, and model-caching (second load ~1.4s vs ~34s cold,
   confirmed no re-download).

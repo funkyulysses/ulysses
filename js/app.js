@@ -464,7 +464,7 @@ settingsBackdrop.addEventListener('click', (e) => {
 
 async function refreshSettingsPanel() {
   if (state.engineStatus === 'ready') {
-    settingsLLMStatus.textContent = 'Qwen2.5-1.5B ✓';
+    settingsLLMStatus.textContent = 'Qwen2.5-0.5B ✓';
     settingsLLMStatus.className = 'settings-row-value ok';
     settingsEmbedStatus.textContent = 'MiniLM-L6 ✓';
     settingsEmbedStatus.className = 'settings-row-value ok';
@@ -588,7 +588,7 @@ function setModelChip(mode) {
     modelDot.classList.add('error');
     modelChipText.textContent = 'Model failed — tap to retry';
   } else {
-    modelChipText.textContent = 'Qwen2.5-1.5B · on-device';
+    modelChipText.textContent = 'Qwen2.5-0.5B · on-device';
   }
 }
 modelChipText.parentElement.addEventListener('click', () => {

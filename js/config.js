@@ -2,14 +2,24 @@
 // Central configuration for the Ulysses client-side AI engine.
 // Change model sources / thresholds here only.
 
-/** Chat + tagging model: Qwen2.5-1.5B-Instruct, GGUF, Q4_K_M quantization.
+/** Chat + tagging model: Qwen2.5-0.5B-Instruct, GGUF, Q4_K_M quantization.
  *  Hosted by the official Qwen org on Hugging Face. wllama streams this
  *  straight from the CDN and caches the bytes itself (Cache Storage API)
- *  so it is only fetched once per browser profile. */
+ *  so it is only fetched once per browser profile.
+ *
+ *  Downgraded from 1.5B after real-device testing on an iPhone 15 (base,
+ *  A16): the 1.5B model's ~1GB weights, loaded into WASM linear memory in a
+ *  Safari tab, repeatedly exceeded iOS's per-tab memory ceiling and crashed
+ *  the page — confirmed even after context/KV-cache/sequential-loading
+ *  reductions, which ruled those out as the dominant cost. 0.5B's ~350MB
+ *  footprint gives real headroom. Quality is noticeably weaker than 1.5B,
+ *  especially for grounded Q&A — mitigate by leaning harder on retrieval
+ *  quality (RETRIEVAL_TOP_K / RETRIEVAL_MIN_SIMILARITY below) rather than
+ *  asking the model to reason over more/noisier context. */
 export const LLM_MODEL = {
-  repo: 'Qwen/Qwen2.5-1.5B-Instruct-GGUF',
-  file: 'qwen2.5-1.5b-instruct-q4_k_m.gguf',
-  url: 'https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/main/qwen2.5-1.5b-instruct-q4_k_m.gguf',
+  repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
+  file: 'qwen2.5-0.5b-instruct-q4_k_m.gguf',
+  url: 'https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF/resolve/main/qwen2.5-0.5b-instruct-q4_k_m.gguf',
   // Context window to allocate. Qwen2.5-1.5B supports up to 32768, but on an
   // A16 iPhone in pure WASM we keep this modest to bound memory + first-token
   // latency. 2048 still comfortably fits a system prompt + RETRIEVAL_TOP_K
